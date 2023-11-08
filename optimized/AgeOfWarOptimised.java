@@ -61,7 +61,7 @@ public class AgeOfWarOptimised {
             System.out.println("Winning Sequence");
             System.out.println(Arrays.stream(bestSequence)
                     .map(unit -> unit + "#" + myPlatoons.get(unit))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.joining(";")));
         } else {
             System.out.println("There is no chance of winning");
         }
