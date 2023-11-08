@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AgeOfWar {
-
+    static List<String> opponentOrder = new ArrayList<>();
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         while (true) {
@@ -22,8 +22,8 @@ public class AgeOfWar {
     }
 
     public static void winningSequence(String myInput, String opponentInput) {
-        Map<String, Integer> myPlatoons = parsePlatoons(myInput); //Store the Platoons and Strength in the Map.
-        Map<String, Integer> opponentPlatoons = parsePlatoons(opponentInput);//Store the Platoons and Strength in the Map.
+        Map<String, Integer> myPlatoons = parsePlatoons(myInput, true);//Store the Platoons and Strength in the Map.
+        Map<String, Integer> opponentPlatoons = parsePlatoons(opponentInput,false);//Store the Platoons and Strength in the Map.
         List<String> myPlatoonOrder = new ArrayList<>(myPlatoons.keySet()); // store my platoon in the list
 // generating all the permutation of my platoon and check the winning possibility with opponent sequence
         List<List<String>> permutations = generatePermutations(myPlatoonOrder);
@@ -42,7 +42,7 @@ public class AgeOfWar {
         System.out.println("There is no chance of winning");
     }
 
-    private static Map<String, Integer> parsePlatoons(String input) {
+    private static Map<String, Integer> parsePlatoons(String input,boolean myOrder) {
         Map<String, Integer> platoons = new HashMap<>();
         String[] parts = input.split(";");
         for (String part : parts) {
@@ -52,6 +52,7 @@ public class AgeOfWar {
             } catch (NumberFormatException e) {
                 throw new NumberFormatException("Error: Invalid command syntax. Please provide numerical value for number of soldiers");
             }
+            if (!myOrder) opponentOrder.add(tokens[0]);
             platoons.put(tokens[0], Integer.parseInt(tokens[1]));
         }
         return platoons;
@@ -79,9 +80,8 @@ public class AgeOfWar {
         int wins = 0;
         for (int i = 0; i < myPlatoons.size(); i++) {
             String myUnit = order.get(i);
-            List<String> OpponentPlatoonOrder = new ArrayList<>(opponentPlatoons.keySet());
 
-            String opponentUnit = OpponentPlatoonOrder.get(i);
+            String opponentUnit = opponentOrder.get(i);
             int outcome = calculateBattleOutcome(myUnit, myPlatoons.get(myUnit), opponentUnit, opponentPlatoons.get(opponentUnit));
             if (outcome > 0) {
                 wins++;
@@ -94,7 +94,7 @@ public class AgeOfWar {
         if (myUnit.equals(opponentUnit)) {
             return myCount.compareTo(opponentCount);
         }
-        Integer effectiveOpponentCount =0;
+        Integer effectiveOpponentCount = opponentCount;
         Set<String> yourAdvantages = getAdvantages(myUnit);
         Set<String> opponentAdvantages = getAdvantages(opponentUnit);
         if (yourAdvantages.contains(opponentUnit)) {
@@ -102,7 +102,7 @@ public class AgeOfWar {
         } else if(opponentAdvantages.contains(myUnit)){
             effectiveOpponentCount = opponentCount * 2;
         }
-        return (myCount >= effectiveOpponentCount) ? 1 : -1;
+        return (myCount > effectiveOpponentCount) ? 1 : -1;
     }
 // to store the one platoon's advantage over another
     static Map<String, Set<String>> unitAdvantages = new HashMap<>();
